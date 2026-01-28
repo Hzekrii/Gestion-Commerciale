@@ -9,6 +9,7 @@ from app.ui.fournisseur_window import FournisseurWindow
 from app.ui.facture_window import FactureWindow
 from app.ui.stock_dialog import StockDialog
 from app.ui.facture_list_window import FactureListWindow
+from app.ui.caisse_window import CaisseWindow
 
 
 class MainWindow(QMainWindow):
@@ -39,6 +40,7 @@ class MainWindow(QMainWindow):
         self.page_fournisseurs = FournisseurWindow()
         self.page_factures = FactureWindow()
         self.page_facture_list = FactureListWindow()
+        self.page_caisse = CaisseWindow()
 
         # Ajout au stack
         self.stack.addWidget(self.page_articles)
@@ -46,6 +48,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.page_fournisseurs)
         self.stack.addWidget(self.page_factures)
         self.stack.addWidget(self.page_facture_list)
+        self.stack.addWidget(self.page_caisse)
         
 
         # Page par défaut
@@ -71,10 +74,12 @@ class MainWindow(QMainWindow):
         action_articles.triggered.connect(self._open_articles)
         menu_gestion.addAction(action_articles)
 
+        # ===== Clients =====
         action_clients = QAction("Clients", self)
         action_clients.triggered.connect(self._open_clients)
         menu_gestion.addAction(action_clients)
 
+        # ===== Fournisseurs =====
         action_fournisseurs = QAction("Fournisseurs", self)
         action_fournisseurs.triggered.connect(self._open_fournisseurs)
         menu_gestion.addAction(action_fournisseurs)
@@ -101,6 +106,15 @@ class MainWindow(QMainWindow):
         action_sortie = QAction("Sortie stock", self)
         action_sortie.triggered.connect(self._sortie_stock)
         menu_stock.addAction(action_sortie)
+
+        # ===== CAISSE =====
+        menu_caisse = menubar.addMenu("Caisse")
+
+        action_caisse = QAction("Caisse journalière", self)
+        action_caisse.triggered.connect(
+            lambda: self.stack.setCurrentWidget(self.page_caisse)
+        )
+        menu_caisse.addAction(action_caisse)
 
         # ===== AIDE =====
         menu_aide = menubar.addMenu("Aide")

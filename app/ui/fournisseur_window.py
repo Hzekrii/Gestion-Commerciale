@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTableWidget, QTableWidgetItem,
-    QMessageBox
+    QMessageBox, QHeaderView
 )
 from app.services.fournisseur_service import FournisseurService
 from app.ui.fournisseur_dialog import FournisseurDialog
-
+from app.ui.header_widget import HeaderWidget
 
 class FournisseurWindow(QWidget):
     def __init__(self):
@@ -20,6 +20,7 @@ class FournisseurWindow(QWidget):
     def _build_ui(self):
         layout = QVBoxLayout()
 
+        header = HeaderWidget("Fournisseurs", "Gestion des fournisseurs")
         self.table = QTableWidget()
         self.table.setColumnCount(3)
         self.table.setHorizontalHeaderLabels(
@@ -27,6 +28,11 @@ class FournisseurWindow(QWidget):
         )
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        header_table = self.table.horizontalHeader()
+        header_table.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header_table.setSectionResizeMode(1, QHeaderView.Stretch)
+        header_table.setSectionResizeMode(2, QHeaderView.Stretch)
 
         btn_layout = QHBoxLayout()
         btn_add = QPushButton("Ajouter")
@@ -42,6 +48,7 @@ class FournisseurWindow(QWidget):
         btn_layout.addWidget(btn_delete)
         btn_layout.addStretch()
 
+        layout.addWidget(header)
         layout.addLayout(btn_layout)
         layout.addWidget(self.table)
         self.setLayout(layout)

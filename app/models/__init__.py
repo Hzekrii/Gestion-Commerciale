@@ -7,3 +7,4 @@ from app.models.fournisseur import Fournisseur
 from app.models.mouvement_stock import MouvementStock
 from app.models.facture import Facture
 from app.models.ligne_facture import LigneFacture
+from app.models.paiement import Paiement

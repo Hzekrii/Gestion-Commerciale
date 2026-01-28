@@ -1,10 +1,14 @@
-from PySide6.QtWidgets import QMainWindow, QLabel, QMessageBox
+from PySide6.QtWidgets import QMainWindow, QMessageBox, QStackedWidget
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt
+
+# Pages UI
 from app.ui.article_window import ArticleWindow
 from app.ui.client_window import ClientWindow
 from app.ui.fournisseur_window import FournisseurWindow
+from app.ui.facture_window import FactureWindow
 from app.ui.stock_dialog import StockDialog
+from app.ui.facture_list_window import FactureListWindow
 
 
 class MainWindow(QMainWindow):
@@ -14,23 +18,48 @@ class MainWindow(QMainWindow):
         self.utilisateur = utilisateur
 
         self.setWindowTitle("Gestion Commerciale")
-        self.resize(900, 600)
+        self.resize(1100, 700)
 
         self._build_ui()
         self._build_menu()
 
+    # ======================================================
+    # UI PRINCIPALE
+    # ======================================================
     def _build_ui(self):
-        label = QLabel(
-            f"Bienvenue {self.utilisateur.nom_utilisateur}",
-            alignment=Qt.AlignCenter
-        )
-        self.setCentralWidget(label)
+        """
+        Zone centrale avec navigation interne
+        """
+        self.stack = QStackedWidget()
+        self.setCentralWidget(self.stack)
 
+        # Pages (une seule instance chacune)
+        self.page_articles = ArticleWindow()
+        self.page_clients = ClientWindow()
+        self.page_fournisseurs = FournisseurWindow()
+        self.page_factures = FactureWindow()
+        self.page_facture_list = FactureListWindow()
+
+        # Ajout au stack
+        self.stack.addWidget(self.page_articles)
+        self.stack.addWidget(self.page_clients)
+        self.stack.addWidget(self.page_fournisseurs)
+        self.stack.addWidget(self.page_factures)
+        self.stack.addWidget(self.page_facture_list)
+        
+
+        # Page par défaut
+        self.stack.setCurrentWidget(self.page_articles)
+
+    # ======================================================
+    # MENU BAR
+    # ======================================================
     def _build_menu(self):
         menubar = self.menuBar()
 
         # ===== FICHIER =====
         menu_fichier = menubar.addMenu("Fichier")
+
         action_quitter = QAction("Quitter", self)
         action_quitter.triggered.connect(self.close)
         menu_fichier.addAction(action_quitter)
@@ -50,6 +79,18 @@ class MainWindow(QMainWindow):
         action_fournisseurs.triggered.connect(self._open_fournisseurs)
         menu_gestion.addAction(action_fournisseurs)
 
+        # ===== FACTURATION =====
+        menu_facturation = menubar.addMenu("Facturation")
+
+        action_factures = QAction("Factures", self)
+        action_factures.triggered.connect(self._open_factures)
+        menu_facturation.addAction(action_factures)
+
+        # ===== Historique FACTURATION =====
+        action_historique = QAction("Historique factures", self)
+        action_historique.triggered.connect(self._open_historique_factures)
+        menu_facturation.addAction(action_historique)
+
         # ===== STOCK =====
         menu_stock = menubar.addMenu("Stock")
 
@@ -68,23 +109,33 @@ class MainWindow(QMainWindow):
         action_apropos.triggered.connect(self._a_propos)
         menu_aide.addAction(action_apropos)
 
-        # ===== DROITS (V1 simple) =====
+        # ===== GESTION DES DROITS (V2 simple) =====
+        # Exemple : seul ADMIN peut gérer fournisseurs
         if self.utilisateur.role_id != 1:  # 1 = ADMIN
             action_fournisseurs.setEnabled(False)
 
-    # ===== ACTIONS =====
+    # ======================================================
+    # NAVIGATION INTERNE
+    # ======================================================
     def _open_articles(self):
-        self.article_window = ArticleWindow()
-        self.article_window.show()
+        self.stack.setCurrentWidget(self.page_articles)
 
     def _open_clients(self):
-        self.client_window = ClientWindow()
-        self.client_window.show()
+        self.stack.setCurrentWidget(self.page_clients)
 
     def _open_fournisseurs(self):
-        self.fournisseur_window = FournisseurWindow()
-        self.fournisseur_window.show()
+        self.stack.setCurrentWidget(self.page_fournisseurs)
 
+    def _open_factures(self):
+        self.page_factures.refresh_data()
+        self.stack.setCurrentWidget(self.page_factures)
+        
+    def _open_historique_factures(self):
+        self.page_facture_list._load_factures()
+        self.stack.setCurrentWidget(self.page_facture_list)
+    # ======================================================
+    # ACTIONS STOCK
+    # ======================================================
     def _entree_stock(self):
         dialog = StockDialog("ENTREE")
         dialog.exec()
@@ -93,9 +144,15 @@ class MainWindow(QMainWindow):
         dialog = StockDialog("SORTIE")
         dialog.exec()
 
+    # ======================================================
+    # AIDE
+    # ======================================================
     def _a_propos(self):
         QMessageBox.about(
             self,
             "À propos",
-            "Gestion Commerciale\nVersion 1.0\nDéveloppé en Python + PySide6"
+            "Gestion Commerciale\n"
+            "Version 2.0\n"
+            "Python • PySide6 • SQLite\n\n"
+            "Application de gestion commerciale"
         )

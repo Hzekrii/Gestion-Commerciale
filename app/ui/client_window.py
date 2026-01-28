@@ -1,12 +1,13 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTableWidget, QTableWidgetItem,
-    QMessageBox
+    QMessageBox, QHeaderView
 )
 from PySide6.QtCore import Qt
 
 from app.services.client_service import ClientService
 from app.ui.client_dialog import ClientDialog
+from app.ui.header_widget import HeaderWidget
 
 
 class ClientWindow(QWidget):
@@ -22,6 +23,7 @@ class ClientWindow(QWidget):
     def _build_ui(self):
         layout = QVBoxLayout()
 
+        header = HeaderWidget("Clients", "Gestion des clients")
         self.table = QTableWidget()
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(
@@ -29,6 +31,12 @@ class ClientWindow(QWidget):
         )
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        header_table = self.table.horizontalHeader()
+        header_table.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header_table.setSectionResizeMode(1, QHeaderView.Stretch)
+        header_table.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header_table.setSectionResizeMode(3, QHeaderView.Stretch)
 
         btn_layout = QHBoxLayout()
         btn_add = QPushButton("Ajouter")
@@ -44,6 +52,7 @@ class ClientWindow(QWidget):
         btn_layout.addWidget(btn_delete)
         btn_layout.addStretch()
 
+        layout.addWidget(header)
         layout.addLayout(btn_layout)
         layout.addWidget(self.table)
         self.setLayout(layout)

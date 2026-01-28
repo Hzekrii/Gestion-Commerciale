@@ -1,13 +1,14 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTableWidget, QTableWidgetItem,
-    QMessageBox
+    QMessageBox , QHeaderView
 )
 from PySide6.QtCore import Qt
 
 from app.services.article_service import ArticleService
 from app.ui.article_dialog import ArticleDialog
 from app.models.article import Article
+from app.ui.header_widget import HeaderWidget
 
 class ArticleWindow(QWidget):
     def __init__(self):
@@ -22,6 +23,12 @@ class ArticleWindow(QWidget):
     def _build_ui(self):
         main_layout = QVBoxLayout()
 
+
+        # ===== HEADER =====
+        header = HeaderWidget(
+            "Gestion des articles",
+            "Créer, modifier et gérer les articles"
+        )
         # ===== TABLE =====
         self.table = QTableWidget()
         self.table.setColumnCount(5)
@@ -30,6 +37,13 @@ class ArticleWindow(QWidget):
         ])
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        header_table = self.table.horizontalHeader()
+        header_table.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header_table.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header_table.setSectionResizeMode(2, QHeaderView.Stretch)
+        header_table.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header_table.setSectionResizeMode(4, QHeaderView.ResizeToContents)
 
         # ===== BOUTONS =====
         btn_layout = QHBoxLayout()
@@ -47,6 +61,7 @@ class ArticleWindow(QWidget):
         btn_layout.addWidget(btn_delete)
         btn_layout.addStretch()
 
+        main_layout.addWidget(header)
         main_layout.addLayout(btn_layout)
         main_layout.addWidget(self.table)
 

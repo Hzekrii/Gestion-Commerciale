@@ -93,3 +93,29 @@ class FactureService:
 
         session.commit()
         session.close()
+    @staticmethod
+    def lister_factures():
+        session = SessionLocal()
+        factures = (
+            session.query(Facture)
+            .order_by(Facture.id.desc())
+            .all()
+        )
+        session.close()
+        return factures
+
+    @staticmethod
+    def get_facture_detail(facture_id):
+        session = SessionLocal()
+
+        facture = session.get(Facture, facture_id)
+        lignes = (
+            session.query(LigneFacture)
+            .filter_by(facture_id=facture_id)
+            .all()
+        )
+
+        client = session.get(Client, facture.client_id) if facture else None
+
+        session.close()
+        return facture, client, lignes
